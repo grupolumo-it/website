@@ -1,4 +1,4 @@
-import ProductCard from "@/features/products/components/ProductCard.jsx";
+import ProductGrid from "@/features/products/components/ProductGrid.jsx";
 import { useFeaturedProducts } from "@/features/products/hooks/useFeaturedProducts";
 
 export default function FeaturedProducts() {
@@ -23,11 +23,7 @@ export default function FeaturedProducts() {
 
       {error && <p className="text-red-500 mb-6">{error}</p>}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      <ProductGrid products={products} />
 
     </section>
   );

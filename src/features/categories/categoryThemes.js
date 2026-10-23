@@ -55,3 +55,12 @@ export const categoryThemes = {
     text: "group-hover:text-indigo-600",
   },
 };
+
+/**
+ * La columna "color" de la tabla categories se traduce a uno de los temas
+ * de arriba (emerald, blue, orange, red, pink, gray, amber, indigo).
+ * Si el valor no coincide con ninguno, se usa el tema gris.
+ */
+export function getCategoryTheme(color) {
+  return categoryThemes[String(color || "").trim().toLowerCase()] ?? categoryThemes.gray;
+}

@@ -54,3 +54,38 @@ export async function getProductBySlug(slug) {
 
   return mapProduct(data);
 }
+
+/**
+ * Productos activos de una categoría, junto con los datos de la categoría.
+ * Devuelve { category: null, products: [] } si el slug no existe.
+ */
+export async function getProductsByCategorySlug(slug) {
+  const { data, error } = await supabase
+    .from("categories")
+    .select(`
+      *,
+      products_categories(
+        products(
+          *,
+          product_prices(*)
+        )
+      )
+    `)
+    .eq("slug", slug)
+    .eq("status", "ACTIVE")
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!data) return { category: null, products: [] };
+
+  const { products_categories, ...category } = data;
+
+  const products = (products_categories || [])
+    .map((item) => item.products)
+    .filter((product) => product?.is_active)
+    .map(mapProduct)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return { category, products };
+}

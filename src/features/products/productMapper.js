@@ -49,6 +49,8 @@ export function mapProduct(product) {
     price: mainPrice?.price || 0,
     currency: mainPrice?.currency || "COP",
 
+    createdAt: product.created_at,
+
     badge: product.badge,
     featured: product.is_featured,
 

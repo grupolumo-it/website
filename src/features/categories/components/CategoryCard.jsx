@@ -1,11 +1,16 @@
-import { categoryThemes } from "@/features/categories/categoryThemes";
+import { Link } from "react-router-dom";
+import { getCategoryIcon } from "@/features/categories/categoryIcons";
+import { getCategoryTheme } from "@/features/categories/categoryThemes";
 
 export default function CategoryCard({ category }) {
-  const theme = categoryThemes[category.theme];
-  const Icon = category.icon;
+  const theme = getCategoryTheme(category.color);
+  const Icon = getCategoryIcon(category.icon);
 
   return (
-    <div className="flex flex-col items-center group cursor-pointer">
+    <Link
+      to={`/categories/${category.slug}`}
+      className="flex flex-col items-center group cursor-pointer"
+    >
 
       <div
         className={`
@@ -34,6 +39,6 @@ export default function CategoryCard({ category }) {
         {category.name}
       </span>
 
-    </div>
+    </Link>
   );
 }

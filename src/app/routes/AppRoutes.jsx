@@ -3,6 +3,7 @@ import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import ClientLayout from "@/layouts/ClientLayout.jsx";
 import HomePage from "@/pages/client/HomePage.jsx";
 import ProductDetailPage from "@/pages/client/ProductDetailPage.jsx";
+import CategoryPage from "@/pages/client/CategoryPage.jsx";
 import LoginPage from "@/pages/auth/LoginPage.jsx";
 import RegisterPage from "@/pages/auth/RegisterPage.jsx";
 
@@ -14,6 +15,7 @@ export default function AppRoutes() {
       <Route element={<ClientLayout />}>
         <Route index element={<HomePage />} />
         <Route path="products/:slug" element={<ProductDetailPage />} />
+        <Route path="categories/:slug" element={<CategoryPage />} />
       </Route>
 
       {/* AUTENTICACIÓN (pantalla completa) */}
