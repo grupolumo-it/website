@@ -1,11 +1,14 @@
-import Header from "../components/common/header/Header.jsx";
-import Footer from "../components/common/footer/Footer.jsx";
+import { Outlet } from "react-router-dom";
+import Header from "@/layouts/components/Header.jsx";
+import Footer from "@/layouts/components/Footer.jsx";
 
-export default function ClientLayout({ children }) {
+export default function ClientLayout() {
   return (
     <div className="client-layout">
       <Header />
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );

@@ -2,7 +2,8 @@
 @theme {
 
   /* Colores */
-  --color-lumo-navy: #11184d;
+  --color-lumo-navy: #1D2559;
+  --color-lumo-navy-light: #303A80; /* hover */
   --color-lumo-blue: #2447d5;
 
   --color-lumo-gray-50: #f8fafc;
@@ -28,11 +29,6 @@ head, body {
     background-color: #f9fafb80;
     margin: 0;
     overflow-x: hidden;
-}
-
-/* Centrar verticalmente iconos de Font Awesome si es necesario */
-.fa-solid, .fa-regular, .fa-brands {
-    vertical-align: middle;
 }
 
 /* Esconder scrolls verticales fantasma */
