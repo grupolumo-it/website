@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FormField from "@/shared/components/FormField.jsx";
+import FormSelect from "@/shared/components/FormSelect.jsx";
 import FormTextarea from "@/shared/components/FormTextarea.jsx";
 import ImageUploader from "@/features/seller/components/ImageUploader.jsx";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROLES } from "@/features/auth/roles";
+import { useBadges } from "@/features/badges/hooks/useBadges";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 import {
   getProductImageUrls,
@@ -49,9 +51,9 @@ function toImageItems(product) {
   }));
 }
 
-function validate(values, items, categoryIds) {
+function validate(values, items, categoryIds, { requireSku }) {
   if (!values.name.trim()) return "El nombre es obligatorio.";
-  if (!values.sku.trim()) return "El SKU es obligatorio.";
+  if (requireSku && !values.sku.trim()) return "El SKU no puede quedar vacío.";
 
   const price = Number(values.price);
   if (!values.price || Number.isNaN(price) || price <= 0) {
@@ -77,6 +79,10 @@ function validate(values, items, categoryIds) {
 function translateError(error) {
   if (error?.code === "23505") {
     return "Ya existe un producto con ese SKU o esa dirección. Cambia el SKU e inténtalo de nuevo.";
+  }
+
+  if (error?.message?.includes("etiqueta")) {
+    return "La etiqueta seleccionada ya no está disponible. Elige otra.";
   }
 
   if (error?.code === "42501" || error?.message?.includes("row-level security")) {
@@ -106,6 +112,7 @@ export default function ProductForm({ seller, initialProduct }) {
   const navigate = useNavigate();
   const { role } = useAuth();
   const { categories, loading: loadingCategories, error: categoriesError } = useCategories();
+  const { badges, error: badgesError } = useBadges({ onlyActive: true });
 
   const [values, setValues] = useState(() => toFormValues(initialProduct));
   const [items, setItems] = useState(() => toImageItems(initialProduct));
@@ -116,7 +123,16 @@ export default function ProductForm({ seller, initialProduct }) {
   const [error, setError] = useState("");
 
   const isEdit = Boolean(initialProduct);
-  const canFeature = role === ROLES.ADMIN;
+  const isAdmin = role === ROLES.ADMIN;
+
+  const badgeOptions = [
+    { value: "", label: "Sin etiqueta" },
+    ...badges.map((badge) => ({ value: badge.name, label: badge.name })),
+  ];
+
+  if (values.badge && !badges.some((badge) => badge.name === values.badge)) {
+    badgeOptions.push({ value: values.badge, label: `${values.badge} (ya no disponible)` });
+  }
 
   const update = (field) => (event) =>
     setValues((current) => ({ ...current, [field]: event.target.value }));
@@ -133,7 +149,9 @@ export default function ProductForm({ seller, initialProduct }) {
     event.preventDefault();
     setError("");
 
-    const problem = validate(values, items, categoryIds);
+    const problem = validate(values, items, categoryIds, {
+      requireSku: isAdmin && isEdit,
+    });
     if (problem) {
       setError(problem);
       return;
@@ -148,7 +166,7 @@ export default function ProductForm({ seller, initialProduct }) {
         values,
         items,
         categoryIds,
-        canFeature,
+        isAdmin,
       });
 
       navigate("/seller/products");
@@ -171,13 +189,30 @@ export default function ProductForm({ seller, initialProduct }) {
           placeholder="Ej. Crema hidratante facial"
         />
 
-        <FormField
-          id="sku"
-          label="SKU (código interno)"
-          value={values.sku}
-          onChange={update("sku")}
-          placeholder="Ej. CRE-HID-001"
-        />
+        {isAdmin ? (
+          <FormField
+            id="sku"
+            label="SKU (código interno)"
+            value={values.sku}
+            onChange={update("sku")}
+            placeholder={isEdit ? "" : "Déjalo vacío para generarlo automáticamente"}
+          >
+            <p className="text-xs text-lumo-gray-500 mt-2">
+              Solo los administradores pueden escribir un SKU puntual.
+            </p>
+          </FormField>
+        ) : isEdit ? (
+          <div>
+            <p className="block text-sm font-medium text-gray-700 mb-2">SKU (código interno)</p>
+            <p className="font-mono text-sm text-lumo-navy bg-gray-50 border border-lumo-gray-200 rounded-xl px-4 py-3">
+              {initialProduct.sku}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-lumo-gray-500 bg-gray-50 border border-lumo-gray-200 rounded-xl px-4 py-3">
+            El SKU se genera automáticamente cuando guardas el producto.
+          </p>
+        )}
 
         <FormTextarea
           id="shortDescription"
@@ -234,13 +269,15 @@ export default function ProductForm({ seller, initialProduct }) {
           />
         </div>
 
-        <FormField
+        <FormSelect
           id="badge"
           label="Etiqueta (opcional)"
           value={values.badge}
           onChange={update("badge")}
-          placeholder="Ej. Nuevo, Oferta"
-        />
+          options={badgeOptions}
+        >
+          {badgesError && <p className="text-xs text-red-600 mt-2">{badgesError}</p>}
+        </FormSelect>
       </Section>
 
       <Section title="Categorías" description="Elige al menos una. Define en qué secciones aparece el producto.">
@@ -287,7 +324,7 @@ export default function ProductForm({ seller, initialProduct }) {
           </span>
         </label>
 
-        {canFeature && (
+        {isAdmin && (
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"

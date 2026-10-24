@@ -72,36 +72,71 @@ export async function getSellerProduct(productId) {
   return data;
 }
 
-// ---------- acciones rápidas ----------
-export async function setProductActive(productId, isActive) {
-  const { data, error } = await supabase
-    .from("products")
-    .update({ is_active: isActive })
-    .eq("id", productId)
-    .select("id");
+// ---------- acciones (una o varias a la vez) ----------
+// Se procesan por tandas para no armar peticiones demasiado largas
+const CHUNK_SIZE = 50;
 
-  if (error) throw error;
-  if (!data?.length) throw new Error("No tienes permiso para modificar este producto.");
+function chunk(items, size = CHUNK_SIZE) {
+  const chunks = [];
+  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
+  return chunks;
 }
 
-export async function deleteSellerProduct(productId) {
-  // Guardamos las URLs antes de borrar para limpiar también el Storage
-  const { data: product } = await supabase
-    .from("products")
-    .select("image_url, product_images(image_url)")
-    .eq("id", productId)
-    .maybeSingle();
+/** Publica (true) u oculta (false) uno o varios productos. */
+export async function setProductsActive(productIds, isActive) {
+  let updated = 0;
 
-  const { data, error } = await supabase
-    .from("products")
-    .delete()
-    .eq("id", productId)
-    .select("id");
+  for (const ids of chunk(productIds)) {
+    const { data, error } = await supabase
+      .from("products")
+      .update({ is_active: isActive })
+      .in("id", ids)
+      .select("id");
 
-  if (error) throw error;
-  if (!data?.length) throw new Error("No tienes permiso para eliminar este producto.");
+    if (error) throw error;
 
-  await removeProductImages(getProductImageUrls(product));
+    updated += data?.length ?? 0;
+  }
+
+  if (updated !== productIds.length) {
+    throw new Error("No se pudieron actualizar todos los productos seleccionados.");
+  }
+}
+
+/** Elimina uno o varios productos y limpia sus imágenes del Storage. */
+export async function deleteSellerProducts(productIds) {
+  let deletedCount = 0;
+
+  for (const ids of chunk(productIds)) {
+    // Guardamos las URLs antes de borrar para limpiar también el Storage
+    const { data: products, error: readError } = await supabase
+      .from("products")
+      .select("id, image_url, product_images(image_url)")
+      .in("id", ids);
+
+    if (readError) throw readError;
+
+    const { data: deleted, error } = await supabase
+      .from("products")
+      .delete()
+      .in("id", ids)
+      .select("id");
+
+    if (error) throw error;
+
+    const deletedIds = new Set((deleted || []).map((product) => product.id));
+    deletedCount += deletedIds.size;
+
+    const urls = (products || [])
+      .filter((product) => deletedIds.has(product.id))
+      .flatMap((product) => getProductImageUrls(product));
+
+    await removeProductImages(urls);
+  }
+
+  if (deletedCount !== productIds.length) {
+    throw new Error("No se pudieron eliminar todos los productos seleccionados.");
+  }
 }
 
 // ---------- guardar (crear o editar) ----------
@@ -181,7 +216,7 @@ export async function saveSellerProduct({
   values,
   items,
   categoryIds,
-  canFeature,
+  isAdmin,
 }) {
   const isEdit = Boolean(product);
   const folder = product?.seller_id ?? sellerId;
@@ -213,7 +248,6 @@ export async function saveSellerProduct({
   // 2) Guardar el producto y lo que depende de él
   const row = {
     name: values.name.trim(),
-    sku: values.sku.trim(),
     short_description: values.shortDescription.trim() || null,
     description: values.description.trim() || null,
     image_url: finalUrls[0],
@@ -223,13 +257,20 @@ export async function saveSellerProduct({
     is_active: values.isActive,
   };
 
+  // El SKU solo lo escribe un administrador. Para vendedores (o si el administrador
+  // lo deja vacío en un producto nuevo) lo genera la base de datos.
+  if (isAdmin) {
+    const sku = values.sku.trim();
+    if (sku) row.sku = sku;
+  }
+
   let productId = product?.id ?? null;
   let createdProductId = null;
   let rowWritten = false;
 
   try {
     if (isEdit) {
-      if (canFeature) row.is_featured = values.isFeatured;
+      if (isAdmin) row.is_featured = values.isFeatured;
 
       const { data, error } = await supabase
         .from("products")
@@ -246,7 +287,7 @@ export async function saveSellerProduct({
           ...row,
           slug: makeSlug(values.name),
           seller_id: sellerId,
-          is_featured: canFeature ? values.isFeatured : false,
+          is_featured: isAdmin ? values.isFeatured : false,
         })
         .select("id")
         .single();
