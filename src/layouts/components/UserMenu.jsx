@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogIn, LogOut, User, UserPlus } from "lucide-react";
+import { LogIn, LogOut, ShieldCheck, Store, User, UserPlus } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { ROLES } from "@/features/auth/roles";
 
 const ITEM_CLASSES =
   "flex items-center gap-3 w-full px-4 py-2.5 text-sm text-lumo-gray-600 " +
@@ -14,12 +15,15 @@ function getDisplayName(user) {
 /**
  * Ícono de usuario con menú desplegable.
  * - Sin sesión: Iniciar sesión / Crear cuenta.
- * - Con sesión: nombre del usuario y Cerrar sesión.
+ * - Con sesión: nombre, accesos a los paneles según el rol y Cerrar sesión.
  */
 export default function UserMenu() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, role, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
+
+  const canSell = role === ROLES.SELLER || role === ROLES.ADMIN;
+  const isAdmin = role === ROLES.ADMIN;
 
   // Cierra el menú al hacer click fuera o al presionar Escape
   useEffect(() => {
@@ -61,7 +65,7 @@ export default function UserMenu() {
         aria-label={isAuthenticated ? "Menú de cuenta" : "Iniciar sesión o registrarse"}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="text-lumo-gray-600 transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110  hover:text-lumo-navy transition-colors cursor-pointer"
+        className="text-lumo-gray-600 hover:text-lumo-navy transition-colors cursor-pointer"
       >
         <User size={20} />
       </button>
@@ -79,6 +83,30 @@ export default function UserMenu() {
                   {getDisplayName(user)}
                 </p>
               </div>
+
+              {canSell && (
+                <Link
+                  to="/seller"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className={ITEM_CLASSES}
+                >
+                  <Store size={16} />
+                  Panel de vendedor
+                </Link>
+              )}
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className={ITEM_CLASSES}
+                >
+                  <ShieldCheck size={16} />
+                  Panel de administración
+                </Link>
+              )}
 
               <button
                 type="button"

@@ -1,6 +1,5 @@
 /**
  * Reglas de contraseña. Se usa en el formulario de registro
- * y puede reutilizarse en "cambiar contraseña".
  */
 export function validatePassword(password) {
   const hasMinLength = password.length >= 8;

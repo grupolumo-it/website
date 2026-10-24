@@ -2,13 +2,18 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 /**
- * Envuelve un grupo de rutas que requieren sesión iniciada.
- * Sin sesión, redirige a /login y recuerda a dónde quería ir.
+ * Envuelve un grupo de rutas privadas.
+ * - Sin sesión: redirige a /login y recuerda a dónde quería ir.
+ * - Con sesión pero sin el rol necesario: redirige al inicio.
  *
- * <Route element={<ProtectedRoute />}> ...rutas privadas... </Route>
+ * <Route element={<ProtectedRoute />}>                              cualquier usuario con sesión
+ * <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}> solo administradores
+ *
+ * Importante: esto solo controla qué pantallas se muestran. La seguridad real
+ * de los datos la dan las políticas RLS de Supabase.
  */
-export default function ProtectedRoute() {
-  const { isAuthenticated, loading } = useAuth();
+export default function ProtectedRoute({ allowedRoles }) {
+  const { isAuthenticated, role, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -21,6 +26,10 @@ export default function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

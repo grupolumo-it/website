@@ -53,3 +53,17 @@ export function onAuthChange(callback) {
 
   return () => data.subscription.unsubscribe();
 }
+
+/**
+ * Rol del usuario con sesión iniciada ("ADMIN", "SELLER" o "CLIENT").
+ * Usa la función current_user_role() de la base de datos, la misma que
+ * aplican las políticas RLS, así que frontend y base de datos coinciden.
+ * Devuelve null si no hay sesión o el usuario no tiene rol asignado.
+ */
+export async function getCurrentUserRole() {
+  const { data, error } = await supabase.rpc("current_user_role");
+
+  if (error) throw error;
+
+  return data;
+}

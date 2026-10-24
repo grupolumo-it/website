@@ -1,11 +1,15 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import ClientLayout from "@/layouts/ClientLayout.jsx";
+import SellerLayout from "@/layouts/SellerLayout.jsx";
 import HomePage from "@/pages/client/HomePage.jsx";
 import ProductDetailPage from "@/pages/client/ProductDetailPage.jsx";
 import CategoryPage from "@/pages/client/CategoryPage.jsx";
 import LoginPage from "@/pages/auth/LoginPage.jsx";
 import RegisterPage from "@/pages/auth/RegisterPage.jsx";
+import SellerProductsPage from "@/pages/seller/SellerProductsPage.jsx";
+import SellerProductFormPage from "@/pages/seller/SellerProductFormPage.jsx";
+import { ROLES } from "@/features/auth/roles";
 
 export default function AppRoutes() {
   return (
@@ -22,10 +26,19 @@ export default function AppRoutes() {
       <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
 
-      {/* ÁREA PRIVADA: requiere iniciar sesión.
-          TODO: restringir por rol (seller / admin) y reemplazar por sus layouts. */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="seller" element={<h1>Dashboard Seller</h1>} />
+      {/* PANEL DE VENDEDOR: vendedores y administradores */}
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.SELLER, ROLES.ADMIN]} />}>
+        <Route path="seller" element={<SellerLayout />}>
+          <Route index element={<Navigate to="products" replace />} />
+          <Route path="products" element={<SellerProductsPage />} />
+          <Route path="products/new" element={<SellerProductFormPage />} />
+          <Route path="products/:productId/edit" element={<SellerProductFormPage />} />
+        </Route>
+      </Route>
+
+      {/* PANEL DE ADMINISTRACIÓN: solo administradores.
+          TODO: reemplazar por AdminLayout y sus páginas. */}
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
         <Route path="admin" element={<h1>Dashboard Admin</h1>} />
       </Route>
 
