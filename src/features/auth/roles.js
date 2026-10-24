@@ -4,3 +4,10 @@ export const ROLES = {
   SELLER: "SELLER",
   CLIENT: "CLIENT",
 };
+
+// Cómo se muestra cada rol en la interfaz
+export const ROLE_LABELS = {
+  ADMIN: "Administrador",
+  SELLER: "Vendedor",
+  CLIENT: "Cliente",
+};

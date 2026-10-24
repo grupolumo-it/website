@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LogIn, LogOut, ShieldCheck, Store, User, UserPlus } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROLES } from "@/features/auth/roles";
+import { getDisplayName } from "@/features/auth/userDisplay";
+import { useDismiss } from "@/shared/hooks/useDismiss";
 
 const ITEM_CLASSES =
   "flex items-center gap-3 w-full px-4 py-2.5 text-sm text-lumo-gray-600 " +
   "hover:bg-lumo-gray-50 hover:text-lumo-navy transition-colors text-left cursor-pointer";
-
-function getDisplayName(user) {
-  return user?.user_metadata?.first_name || user?.email?.split("@")[0] || "Cuenta";
-}
 
 /**
  * Ícono de usuario con menú desplegable.
@@ -25,26 +23,7 @@ export default function UserMenu() {
   const canSell = role === ROLES.SELLER || role === ROLES.ADMIN;
   const isAdmin = role === ROLES.ADMIN;
 
-  // Cierra el menú al hacer click fuera o al presionar Escape
-  useEffect(() => {
-    if (!open) return;
-
-    function handlePointerDown(event) {
-      if (!containerRef.current?.contains(event.target)) setOpen(false);
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
+  useDismiss(containerRef, open, () => setOpen(false));
 
   async function handleLogout() {
     setOpen(false);

@@ -1,11 +1,13 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
+import DashboardLayout from "@/layouts/DashboardLayout.jsx";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { ROLES } from "@/features/auth/roles";
 import { useMySeller } from "@/features/seller/hooks/useMySeller";
-
-const NAV_BASE = "text-sm font-medium transition-colors border-b-2 py-5";
 
 function Shell({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-lumo-gray-50">
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">{children}</div>
     </div>
   );
@@ -18,13 +20,28 @@ const STATUS_MESSAGES = {
   INACTIVE: "Tu tienda está inactiva. Contacta a un administrador de Lumo.",
 };
 
+// Ruta de navegación del encabezado según la pantalla en la que estamos
+function getCrumbs(pathname) {
+  const path = pathname.replace(/\/+$/, "");
+  const root = { label: "Seller", to: "/seller" };
+  const products = { label: "Mis productos", to: "/seller/products" };
+
+  if (path === "/seller/products") return [root, { label: "Mis productos" }];
+  if (path === "/seller/products/new") return [root, products, { label: "Nuevo producto" }];
+  if (/^\/seller\/products\/[^/]+\/edit$/.test(path)) return [root, products, { label: "Editar producto" }];
+
+  return [root, { label: "Resumen" }];
+}
+
 /**
- * Marco del panel de vendedor. Carga la tienda del usuario y solo muestra
- * las pantallas hijas si la tienda está ACTIVA. Las hijas la reciben con
- * useOutletContext(): const { seller } = useOutletContext();
+ * Panel de vendedor. Carga la tienda del usuario y solo muestra las pantallas
+ * hijas si la tienda está ACTIVA. Las hijas la reciben con useOutletContext():
+ * const { seller } = useOutletContext();
  */
 export default function SellerLayout() {
   const { seller, loading, error } = useMySeller();
+  const { role } = useAuth();
+  const { pathname } = useLocation();
 
   if (loading) {
     return (
@@ -51,54 +68,20 @@ export default function SellerLayout() {
     );
   }
 
+  // Un administrador puede pasar de un panel al otro
+  const menuLinks =
+    role === ROLES.ADMIN
+      ? [{ to: "/admin", label: "Panel de administración", Icon: ShieldCheck }]
+      : [];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-
-      <header className="bg-white border-b border-lumo-gray-200">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-
-          <div className="flex items-center gap-8">
-            <Link to="/seller/products" className="text-xl font-bold text-lumo-navy">
-              Lumo
-              <span className="ml-2 text-sm font-medium text-lumo-gray-500">Panel de vendedor</span>
-            </Link>
-
-            <nav className="flex gap-6">
-              <NavLink
-                to="/seller/products"
-                end
-                className={({ isActive }) =>
-                  `${NAV_BASE} ${isActive ? "text-lumo-navy border-lumo-navy" : "text-lumo-gray-500 border-transparent hover:text-lumo-navy"}`
-                }
-              >
-                Mis productos
-              </NavLink>
-
-              <NavLink
-                to="/seller/products/new"
-                className={({ isActive }) =>
-                  `${NAV_BASE} ${isActive ? "text-lumo-navy border-lumo-navy" : "text-lumo-gray-500 border-transparent hover:text-lumo-navy"}`
-                }
-              >
-                Nuevo producto
-              </NavLink>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-5 text-sm">
-            <span className="hidden sm:inline text-lumo-gray-500">{seller.store_name}</span>
-            <Link to="/" className="font-medium text-lumo-navy hover:underline">
-              Ver tienda
-            </Link>
-          </div>
-
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-6 py-10">
-        <Outlet context={{ seller }} />
-      </main>
-
-    </div>
+    <DashboardLayout
+      homePath="/seller"
+      crumbs={getCrumbs(pathname)}
+      searchPlaceholder="Buscar en tu tienda..."
+      searchPath="/seller/products"
+      menuLinks={menuLinks}
+      outletContext={{ seller }}
+    />
   );
 }

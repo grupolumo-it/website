@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { useSellerProducts } from "@/features/seller/hooks/useSellerProducts";
 import {
@@ -7,6 +7,7 @@ import {
   setProductsActive,
 } from "@/features/seller/sellerProductService";
 import { formatCurrency } from "@/shared/utils/formatCurrency";
+import { normalizeText } from "@/shared/utils/normalizeText";
 
 const ICON_BUTTON =
   "w-9 h-9 rounded-lg flex items-center justify-center text-lumo-gray-500 hover:text-lumo-navy hover:bg-lumo-gray-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
@@ -16,7 +17,18 @@ const BULK_BUTTON =
 
 export default function SellerProductsPage() {
   const { seller } = useOutletContext();
-  const { products, loading, error, reload } = useSellerProducts(seller.id);
+  const { products: allProducts, loading, error, reload } = useSellerProducts(seller.id);
+
+  // Búsqueda del encabezado (?q=): filtra por nombre o SKU.
+  // "products" son los que se están viendo; la selección y las acciones en lote solo los consideran a ellos.
+  const [searchParams] = useSearchParams();
+  const query = (searchParams.get("q") ?? "").trim();
+
+  const products = query
+    ? allProducts.filter((product) =>
+        normalizeText(`${product.name} ${product.sku}`).includes(normalizeText(query))
+      )
+    : allProducts;
 
   const [selected, setSelected] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
@@ -85,7 +97,18 @@ export default function SellerProductsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-lumo-navy">Mis productos</h1>
-          <p className="text-lumo-gray-500 mt-1">Administra lo que vendes en {seller.store_name}.</p>
+          <p className="text-lumo-gray-500 mt-1">
+            {query ? (
+              <>
+                {products.length === 1 ? "1 resultado" : `${products.length} resultados`} para «{query}».{" "}
+                <Link to="/seller/products" className="font-medium text-lumo-navy hover:underline">
+                  Quitar filtro
+                </Link>
+              </>
+            ) : (
+              <>Administra lo que vendes en {seller.store_name}.</>
+            )}
+          </p>
         </div>
 
         <Link
@@ -100,9 +123,9 @@ export default function SellerProductsPage() {
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {actionError && <p className="text-red-600 mb-4">{actionError}</p>}
 
-      {loading && products.length === 0 ? (
+      {loading && allProducts.length === 0 ? (
         <p className="text-gray-500">Cargando tus productos...</p>
-      ) : products.length === 0 && !error ? (
+      ) : allProducts.length === 0 && !error ? (
         <div className="bg-white rounded-2xl border border-lumo-gray-200 p-12 text-center">
           <p className="text-lumo-gray-500">Todavía no tienes productos.</p>
           <Link
@@ -110,6 +133,16 @@ export default function SellerProductsPage() {
             className="inline-block mt-4 text-sm font-semibold text-lumo-navy hover:underline"
           >
             Crear tu primer producto
+          </Link>
+        </div>
+      ) : products.length === 0 && !error ? (
+        <div className="bg-white rounded-2xl border border-lumo-gray-200 p-12 text-center">
+          <p className="text-lumo-gray-500">No hay productos que coincidan con «{query}».</p>
+          <Link
+            to="/seller/products"
+            className="inline-block mt-4 text-sm font-semibold text-lumo-navy hover:underline"
+          >
+            Ver todos mis productos
           </Link>
         </div>
       ) : (

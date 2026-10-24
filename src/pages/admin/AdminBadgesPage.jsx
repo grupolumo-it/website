@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Check, Eye, EyeOff, Pencil, Trash2, X } from "lucide-react";
 import { useBadges } from "@/features/badges/hooks/useBadges";
+import { normalizeText } from "@/shared/utils/normalizeText";
 import {
   createBadge,
   deleteBadge,
@@ -25,7 +27,15 @@ function translateError(error) {
 }
 
 export default function AdminBadgesPage() {
-  const { badges, loading, error, reload } = useBadges();
+  const { badges: allBadges, loading, error, reload } = useBadges();
+
+  // Búsqueda del encabezado (?q=): filtra las etiquetas por nombre
+  const [searchParams] = useSearchParams();
+  const query = (searchParams.get("q") ?? "").trim();
+
+  const badges = query
+    ? allBadges.filter((badge) => normalizeText(badge.name).includes(normalizeText(query)))
+    : allBadges;
 
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -124,11 +134,21 @@ export default function AdminBadgesPage() {
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {actionError && <p className="text-red-600 mb-4">{actionError}</p>}
 
-      {loading && badges.length === 0 ? (
+      {loading && allBadges.length === 0 ? (
         <p className="text-gray-500">Cargando etiquetas...</p>
-      ) : badges.length === 0 && !error ? (
+      ) : allBadges.length === 0 && !error ? (
         <div className="bg-white rounded-2xl border border-lumo-gray-200 p-12 text-center">
           <p className="text-lumo-gray-500">Todavía no hay etiquetas. Agrega la primera arriba.</p>
+        </div>
+      ) : badges.length === 0 && !error ? (
+        <div className="bg-white rounded-2xl border border-lumo-gray-200 p-12 text-center">
+          <p className="text-lumo-gray-500">No hay etiquetas que coincidan con «{query}».</p>
+          <Link
+            to="/admin/badges"
+            className="inline-block mt-4 text-sm font-semibold text-lumo-navy hover:underline"
+          >
+            Ver todas las etiquetas
+          </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-lumo-gray-200 overflow-x-auto">
