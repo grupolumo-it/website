@@ -1,27 +1,49 @@
-import { ShoppingCart, Truck } from "lucide-react";
+import { Link } from "react-router-dom";
 import UserMenu from "@/layouts/components/UserMenu.jsx";
-
-const buttons = [
-  { Icon: ShoppingCart, label: "Carrito" },
-  { Icon: Truck, label: "Pedidos" },
-];
 
 export default function HeaderActions() {
   return (
-    <div className="flex items-center space-x-5">
-
-      {buttons.map(({ Icon, label }) => (
-        <button
-          key={label}
-          aria-label={label}
-          className="text-lumo-gray-600 transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110  hover:text-lumo-navy transition-colors cursor-pointer"
+    <div id="header-actions-container" className="flex items-center space-x-6">
+      <nav id="header-nav-main" className="hidden lg:flex items-center">
+        <Link
+          id="nav-link-marketplace"
+          to="/"
+          className="text-lumo-gray-600 hover:text-lumo-navy px-3 py-2 text-sm font-semibold transition-colors"
         >
-          <Icon size={20} />
+          Marketplace
+        </Link>
+      </nav>
+
+      <div id="buttons-right-container" className="flex items-center space-x-5">
+        <button
+          id="btn-header-search-mobile"
+          type="button"
+          aria-label="Abrir búsqueda"
+          className="md:hidden text-lumo-gray-600 hover:text-lumo-navy transition-colors"
+        >
+          <i className="fa-solid fa-magnifying-glass text-lg" aria-hidden="true" />
         </button>
-      ))}
 
-      <UserMenu />
+        <button
+          id="btn-header-cart"
+          type="button"
+          aria-label="Carrito de compras"
+          className="text-lumo-gray-600 hover:text-lumo-navy transition-colors relative"
+        >
+          <i className="fa-solid fa-cart-shopping text-lg" aria-hidden="true" />
+        </button>
 
+        <button
+          id="btn-header-tracking"
+          type="button"
+          aria-label="Seguimiento de pedidos"
+          className="text-lumo-gray-600 hover:text-lumo-navy transition-colors"
+        >
+          <i className="fa-solid fa-truck-fast text-lg" aria-hidden="true" />
+        </button>
+
+        <UserMenu showLabel />
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ const ITEM_CLASSES =
  * - Sin sesión: Iniciar sesión / Crear cuenta.
  * - Con sesión: nombre, accesos a los paneles según el rol y Cerrar sesión.
  */
-export default function UserMenu() {
+export default function UserMenu({ showLabel = false }) {
   const { user, role, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
@@ -44,9 +44,18 @@ export default function UserMenu() {
         aria-label={isAuthenticated ? "Menú de cuenta" : "Iniciar sesión o registrarse"}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="text-lumo-gray-600 hover:text-lumo-navy transition-colors cursor-pointer"
+        className="flex items-center space-x-2 text-lumo-gray-600 hover:text-lumo-navy transition-colors cursor-pointer"
       >
-        <User size={20} />
+        {showLabel ? (
+          <>
+            <i className="fa-solid fa-user text-lg" aria-hidden="true" />
+            <span className="hidden xl:inline text-sm font-medium">
+              {isAuthenticated ? getDisplayName(user) : "Perfil"}
+            </span>
+          </>
+        ) : (
+          <User size={20} />
+        )}
       </button>
 
       {open && (

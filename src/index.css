@@ -1,34 +1,189 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Sistema de diseño Lumo
+ * Tokens migrados desde el tailwind.config.js original a Tailwind CSS 4.
+ * Los valores de marca y semánticos se conservan sin reinterpretarlos.
+ */
+
 @theme {
+  /* Colores de marca: paleta Lumo */
+  --color-lumo-navy: #0B1142;
+  --color-lumo-blue: #1A237E;
+  --color-lumo-gray-50: #F9FAFB;
+  --color-lumo-gray-100: #F3F4F6;
+  --color-lumo-gray-200: #E5E7EB;
+  --color-lumo-gray-300: #D1D5DB;
+  --color-lumo-gray-400: #9CA3AF;
+  --color-lumo-gray-500: #6B7280;
+  --color-lumo-gray-600: #4B5563;
+  --color-lumo-gray-700: #374151;
+  --color-lumo-gray-800: #1F2937;
+  --color-lumo-gray-900: #111827;
+  --color-lumo-purple-light: #E0E7FF;
+  --color-lumo-purple-dark: #4F46E5;
 
-  /* Colores */
-  --color-lumo-navy: #1D2559;
-  --color-lumo-navy-light: #303A80; /* hover */
-  --color-lumo-blue: #2447d5;
+  /* Colores semánticos */
+  --color-on-primary: #ffffff;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-secondary-container: #d0d4ff;
+  --color-surface-container-high: #e9e8e8;
+  --color-secondary: #575c80;
+  --color-primary-container: #001d77;
+  --color-surface-container-highest: #e3e2e2;
+  --color-surface: #faf9f9;
+  --color-secondary-fixed: #dee0ff;
+  --color-on-tertiary-fixed: #001354;
+  --color-on-surface: #1b1c1c;
+  --color-secondary-fixed-dim: #bfc4ee;
+  --color-primary-fixed-dim: #b9c3ff;
+  --color-tertiary: #000e44;
+  --color-background: #faf9f9;
+  --color-on-tertiary-container: #7e8cd1;
+  --color-tertiary-container: #122362;
+  --color-on-tertiary-fixed-variant: #334282;
+  --color-on-secondary-fixed: #131939;
+  --color-inverse-primary: #b9c3ff;
+  --color-inverse-surface: #303031;
+  --color-surface-container: #efeded;
+  --color-surface-variant: #e3e2e2;
+  --color-primary-fixed: #dde1ff;
+  --color-on-surface-variant: #454652;
+  --color-on-tertiary: #ffffff;
+  --color-on-secondary-container: #565b7f;
+  --color-surface-dim: #dbdad9;
+  --color-surface-bright: #faf9f9;
+  --color-on-primary-container: #778ae5;
+  --color-on-background: #1b1c1c;
+  --color-primary: #000d46;
+  --color-tertiary-fixed: #dde1ff;
+  --color-outline-variant: #c5c5d3;
+  --color-error: #ba1a1a;
+  --color-inverse-on-surface: #f2f0f0;
+  --color-on-secondary: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-tint: #4458af;
+  --color-surface-container-low: #f5f3f3;
+  --color-on-primary-fixed-variant: #2b3f95;
+  --color-tertiary-fixed-dim: #b8c4ff;
+  --color-on-primary-fixed: #001256;
+  --color-on-error-container: #93000a;
+  --color-outline: #757683;
+  --color-on-secondary-fixed-variant: #3f4467;
 
-  --color-lumo-gray-50: #f8fafc;
-  --color-lumo-gray-100: #eef2f7;
-  --color-lumo-gray-200: #e2e8f0;
-  --color-lumo-gray-300: #cbd5e1;
-  --color-lumo-gray-400: #94a3b8;
-  --color-lumo-gray-500: #64748b;
+  /* Border radius */
+  --radius-md: 1rem;
+  --radius-lg: 2rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-design-xl: 3rem;
+  --radius-full: 9999px;
 
-  /* Colores de estado */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
+  /*
+   * Espaciado original.
+   * Los max-width estándar se definen aparte para conservar su
+   * comportamiento de Tailwind 3.
+   */
+  --spacing-sm: 12px;
+  --spacing-md: 24px;
+  --spacing-gutter: 24px;
+  --spacing-xl: 80px;
+  --spacing-container-max: 1280px;
+  --spacing-base: 8px;
+  --spacing-lg: 48px;
+  --spacing-xs: 4px;
+
+  /* Tipografía */
+  --font-sans: "Comfortaa", sans-serif;
+  --font-body-md: "Comfortaa";
+  --font-body-lg: "Comfortaa";
+  --font-display-lg: "Comfortaa";
+  --font-label-sm: "Comfortaa";
+  --font-label-md: "Comfortaa";
+  --font-headline-sm: "Comfortaa";
+  --font-body-sm: "Comfortaa";
+  --font-headline-md: "Comfortaa";
+
+  /* Tamaños tipográficos */
+  --text-label-md: 14px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.05em;
+  --text-label-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 500;
 }
 
-@utility shadow-soft {
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,.08);
+/* Tailwind 3 separaba estos máximos del espaciado extendido. Se agregan para conservar compatibilidad con las maquetas */
+.max-w-sm {
+  max-width: 24rem;
 }
 
-head, body {
+.max-w-md {
+  max-width: 28rem;
+}
+
+.max-w-lg {
+  max-width: 32rem;
+}
+
+.max-w-xl {
+  max-width: 36rem;
+}
+
+.rounded {
+  border-radius: 1rem;
+}
+
+@utility min-h-bottom {
+  min-height: 36px;
+}
+
+/* ==========================================================================
+   1. ESTILOS GLOBALES Y CONFIGURACIÓN BASE
+   ========================================================================== */
+body {
     font-family: 'Comfortaa', sans-serif;
-    background-color: #f9fafb80;
+    background-color: #faf9f9;
     margin: 0;
     overflow-x: hidden;
+}
+
+/* Centrar verticalmente iconos de Font Awesome si es necesario */
+.fa-solid,
+.fa-regular,
+.fa-brands {
+    vertical-align: middle;
 }
 
 /* Esconder scrolls verticales fantasma */
@@ -40,6 +195,11 @@ head, body {
 /* Ajustes nativos de balanceo de texto */
 .text-balance {
     text-wrap: balance;
+}
+
+/* Permite esconder elementos vacíos automáticamente al añadir la clase empty-hidden */
+.empty-hidden:empty {
+    display: none;
 }
 
 /* ==========================================================================
@@ -86,18 +246,3 @@ head, body {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
 }
-
-/* ==========================================================================
-   4. COMPORTAMIENTO RESPONSIVO (MÓVIL)
-   ========================================================================== */
-@media (max-width: 767px) {
-    /* Agrega esta clase al body únicamente en la Login Page */
-    body.login-page {
-        background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1920');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        zoom: 0.8;
-    }
-}
-
