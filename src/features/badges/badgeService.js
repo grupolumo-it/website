@@ -8,7 +8,7 @@ import { supabase } from "@/shared/lib/supabase";
 export async function getBadges({ onlyActive = false } = {}) {
   let query = supabase
     .from("product_badges")
-    .select("id, name, status")
+    .select("id, name, status, color")
     .order("name");
 
   if (onlyActive) query = query.eq("status", "ACTIVE");
@@ -20,10 +20,10 @@ export async function getBadges({ onlyActive = false } = {}) {
   return data;
 }
 
-export async function createBadge(name) {
+export async function createBadge({ name, color }) {
   const { error } = await supabase
     .from("product_badges")
-    .insert({ name: name.trim() });
+    .insert({ name: name.trim(), color });
 
   if (error) throw error;
 }

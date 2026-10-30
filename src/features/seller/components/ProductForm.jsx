@@ -361,7 +361,7 @@ export default function ProductForm({ seller, initialProduct }) {
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-navy-light text-white font-semibold transition disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
+          className="px-6 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-blue text-white font-semibold transition disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
         >
           {saving ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear producto"}
         </button>

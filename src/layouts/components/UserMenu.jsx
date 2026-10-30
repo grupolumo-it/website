@@ -72,6 +72,18 @@ export default function UserMenu({ showLabel = false }) {
                 </p>
               </div>
 
+              {role === ROLES.CLIENT && (
+                <Link
+                  to="/become-seller"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className={ITEM_CLASSES}
+                >
+                  <Store size={16} />
+                  Quiero vender en Lumo
+                </Link>
+              )}
+
               {canSell && (
                 <Link
                   to="/seller"

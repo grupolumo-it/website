@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Check, Eye, EyeOff, Pencil, Trash2, X } from "lucide-react";
 import { useBadges } from "@/features/badges/hooks/useBadges";
+import BadgePill from "@/features/badges/components/BadgePill.jsx";
+import { BADGE_COLORS, DEFAULT_BADGE_COLOR } from "@/features/badges/badgeColors";
 import { normalizeText } from "@/shared/utils/normalizeText";
 import {
   createBadge,
@@ -38,8 +40,10 @@ export default function AdminBadgesPage() {
     : allBadges;
 
   const [newName, setNewName] = useState("");
+  const [newColor, setNewColor] = useState(DEFAULT_BADGE_COLOR);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
+  const [editColor, setEditColor] = useState(DEFAULT_BADGE_COLOR);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
 
@@ -68,13 +72,14 @@ export default function AdminBadgesPage() {
       return;
     }
 
-    const ok = await run(() => createBadge(newName));
+    const ok = await run(() => createBadge({ name: newName, color: newColor }));
     if (ok) setNewName("");
   }
 
   function startEditing(badge) {
     setEditingId(badge.id);
     setEditName(badge.name);
+    setEditColor(badge.color ?? DEFAULT_BADGE_COLOR);
     setActionError("");
   }
 
@@ -86,12 +91,12 @@ export default function AdminBadgesPage() {
       return;
     }
 
-    if (name === badge.name) {
+    if (name === badge.name && editColor === badge.color) {
       setEditingId(null);
       return;
     }
 
-    const ok = await run(() => updateBadge(badge.id, { name }));
+    const ok = await run(() => updateBadge(badge.id, { name, color: editColor }));
     if (ok) setEditingId(null);
   }
 
@@ -122,10 +127,21 @@ export default function AdminBadgesPage() {
           className="flex-1 border border-gray-200 rounded-xl px-4 py-3 bg-white outline-none focus:border-lumo-navy focus:ring-2 focus:ring-lumo-navy/10"
         />
 
+        <select
+          value={newColor}
+          onChange={(event) => setNewColor(event.target.value)}
+          aria-label="Color de la etiqueta"
+          className="border border-gray-200 rounded-xl px-4 py-3 bg-white outline-none cursor-pointer focus:border-lumo-navy focus:ring-2 focus:ring-lumo-navy/10"
+        >
+          {Object.entries(BADGE_COLORS).map(([key, { label }]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
+
         <button
           type="submit"
           disabled={busy}
-          className="px-6 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-navy-light text-white text-sm font-semibold transition disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
+          className="px-6 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-blue text-white text-sm font-semibold transition disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
         >
           Agregar
         </button>
@@ -171,22 +187,33 @@ export default function AdminBadgesPage() {
 
                     <td className="px-5 py-4">
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(event) => setEditName(event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") saveEditing(badge);
-                            if (event.key === "Escape") setEditingId(null);
-                          }}
-                          maxLength={MAX_NAME_LENGTH}
-                          autoFocus
-                          className="w-full border border-lumo-navy rounded-lg px-3 py-2 outline-none"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(event) => setEditName(event.target.value)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") saveEditing(badge);
+                              if (event.key === "Escape") setEditingId(null);
+                            }}
+                            maxLength={MAX_NAME_LENGTH}
+                            autoFocus
+                            className="flex-1 min-w-0 border border-lumo-navy rounded-lg px-3 py-2 outline-none"
+                          />
+
+                          <select
+                            value={editColor}
+                            onChange={(event) => setEditColor(event.target.value)}
+                            aria-label="Color de la etiqueta"
+                            className="border border-lumo-navy rounded-lg px-2 py-2 bg-white outline-none cursor-pointer"
+                          >
+                            {Object.entries(BADGE_COLORS).map(([key, { label }]) => (
+                              <option key={key} value={key}>{label}</option>
+                            ))}
+                          </select>
+                        </div>
                       ) : (
-                        <span className="inline-block bg-lumo-navy text-white text-xs px-3 py-1 rounded-full">
-                          {badge.name}
-                        </span>
+                        <BadgePill name={badge.name} color={badge.color} />
                       )}
                     </td>
 

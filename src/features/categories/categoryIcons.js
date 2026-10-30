@@ -1,95 +1,47 @@
-import {
-  Leaf,
-  Cpu,
-  House,
-  Apple,
-  Shirt,
-  Dumbbell,
-  PawPrint,
-  Glasses,
-  Tag,
-  Heart,
-  Sparkles,
-  BookOpen,
-  Gamepad2,
-  Car,
-  Utensils,
-  Baby,
-  Gift,
-  Smartphone,
-  Laptop,
-  Watch,
-  Camera,
-  Headphones,
-  Wrench,
-  Palette,
-} from "lucide-react";
-
 /**
- * La columna "icon" de la tabla categories es texto. Aquí se traduce ese texto
- * a un ícono de Lucide. Acepta nombres simples ("leaf") y también el formato
- * de Font Awesome ("fa-solid fa-leaf"). Si no lo reconoce, usa un ícono genérico.
+ * La columna "icon" de la tabla categories es texto. Aquí se traduce a las clases
+ * de Font Awesome. Acepta el formato de Font Awesome ("fa-solid fa-leaf", "fa-leaf")
+ * y nombres simples ("leaf"). Si está vacío, usa un ícono genérico.
  *
- * Para soportar un ícono nuevo: impórtalo arriba y agrégalo a este objeto.
+ * Si algún nombre no existe en Font Awesome, el ícono se verá vacío:
+ * revisa el nombre en https://fontawesome.com/icons (versión gratuita, estilo "solid").
  */
-const icons = {
-  leaf: Leaf,
-  cpu: Cpu,
-  microchip: Cpu,
-  house: House,
-  home: House,
-  "house-chimney": House,
-  apple: Apple,
-  "apple-whole": Apple,
-  shirt: Shirt,
-  tshirt: Shirt,
-  dumbbell: Dumbbell,
-  paw: PawPrint,
-  "paw-print": PawPrint,
-  pawprint: PawPrint,
-  glasses: Glasses,
-  heart: Heart,
-  "heart-pulse": Heart,
-  sparkles: Sparkles,
-  "spray-can-sparkles": Sparkles,
-  "wand-magic-sparkles": Sparkles,
-  "pump-soap": Sparkles,
-  soap: Sparkles,
-  "hand-sparkles": Sparkles,
-  broom: Sparkles,
-  book: BookOpen,
-  "book-open": BookOpen,
-  gamepad: Gamepad2,
-  car: Car,
-  utensils: Utensils,
-  baby: Baby,
-  gift: Gift,
-  smartphone: Smartphone,
-  mobile: Smartphone,
-  laptop: Laptop,
-  watch: Watch,
-  camera: Camera,
-  headphones: Headphones,
-  wrench: Wrench,
-  palette: Palette,
-  tag: Tag,
+const ALIASES = {
+  cpu: "microchip",
+  home: "house",
+  "house-chimney": "house",
+  apple: "apple-whole",
+  tshirt: "shirt",
+  "t-shirt": "shirt",
+  "paw-print": "paw",
+  pawprint: "paw",
+  sparkles: "wand-magic-sparkles",
+  book: "book-open",
+  mobile: "mobile-screen",
+  smartphone: "mobile-screen",
 };
 
+// Prefijos de estilo de Font Awesome: no son el nombre del ícono
 const STYLE_TOKENS = new Set([
   "fa", "fas", "far", "fab",
   "fa-solid", "fa-regular", "fa-brands", "fa-light", "fa-thin",
 ]);
 
-export function getCategoryIcon(name) {
-  const tokens = String(name || "")
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((token) => token && !STYLE_TOKENS.has(token));
+const DEFAULT_ICON = "fa-solid fa-tag";
 
-  for (const token of tokens) {
-    const key = token.replace(/^fa-/, "").replace(/_/g, "-");
-    if (icons[key]) return icons[key];
-  }
+export function getCategoryIconClass(value) {
+  const tokens = String(value || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const names = tokens.filter((token) => !STYLE_TOKENS.has(token));
 
-  return Tag;
+  const rawName = (names[0] ?? "").replace(/^fa-/, "").replace(/_/g, "-");
+
+  if (!rawName) return DEFAULT_ICON;
+
+  const style = tokens.some((t) => t === "fa-regular" || t === "far")
+    ? "fa-regular"
+    : tokens.some((t) => t === "fa-brands" || t === "fab")
+      ? "fa-brands"
+      : "fa-solid";
+
+  return `${style} fa-${ALIASES[rawName] ?? rawName}`;
 }

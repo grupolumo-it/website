@@ -51,7 +51,10 @@ export function mapProduct(product) {
 
     createdAt: product.created_at,
 
+    brandId: product.brand_id ?? null,
+
     badge: product.badge,
+    badgeColor: product.product_badges?.color ?? "navy",
     featured: product.is_featured,
 
     rating: product.rating || 0,

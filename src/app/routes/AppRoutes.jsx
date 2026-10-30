@@ -5,13 +5,16 @@ import AdminLayout from "@/layouts/AdminLayout.jsx";
 import SellerLayout from "@/layouts/SellerLayout.jsx";
 import HomePage from "@/pages/client/HomePage.jsx";
 import ProductDetailPage from "@/pages/client/ProductDetailPage.jsx";
-import CategoryPage from "@/pages/client/CategoryPage.jsx";
+import CategoryRedirect from "@/pages/client/CategoryRedirect.jsx";
+import CatalogPage from "@/pages/client/CatalogPage.jsx";
+import BecomeSellerPage from "@/pages/client/BecomeSellerPage.jsx";
 import LoginPage from "@/pages/auth/LoginPage.jsx";
 import RegisterPage from "@/pages/auth/RegisterPage.jsx";
 import SellerHomePage from "@/pages/seller/SellerHomePage.jsx";
 import SellerProductsPage from "@/pages/seller/SellerProductsPage.jsx";
 import SellerProductFormPage from "@/pages/seller/SellerProductFormPage.jsx";
 import AdminHomePage from "@/pages/admin/AdminHomePage.jsx";
+import AdminSellersPage from "@/pages/admin/AdminSellersPage.jsx";
 import AdminBadgesPage from "@/pages/admin/AdminBadgesPage.jsx";
 import { ROLES } from "@/features/auth/roles";
 
@@ -23,7 +26,13 @@ export default function AppRoutes() {
       <Route element={<ClientLayout />}>
         <Route index element={<HomePage />} />
         <Route path="products/:slug" element={<ProductDetailPage />} />
-        <Route path="categories/:slug" element={<CategoryPage />} />
+        <Route path="catalog" element={<CatalogPage />} />
+        <Route path="categories/:slug" element={<CategoryRedirect />} />
+
+        {/* Solo con sesión iniciada */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="become-seller" element={<BecomeSellerPage />} />
+        </Route>
       </Route>
 
       {/* AUTENTICACIÓN (pantalla completa) */}
@@ -44,6 +53,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
         <Route path="admin" element={<AdminLayout />}>
           <Route index element={<AdminHomePage />} />
+          <Route path="sellers" element={<AdminSellersPage />} />
           <Route path="badges" element={<AdminBadgesPage />} />
         </Route>
       </Route>

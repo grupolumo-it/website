@@ -113,7 +113,7 @@ export default function ProductDetail({ product }) {
               className={`w-full py-4 rounded-xl font-semibold transition ${
                 isOutOfStock
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-lumo-navy hover:bg-lumo-navy-light text-white"
+                  : "bg-lumo-navy hover:bg-lumo-blue text-white"
               }`}
             >
               {isOutOfStock ? "Producto agotado" : "Agregar al carrito"}

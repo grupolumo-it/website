@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "@/features/auth/context/AuthContext";
 import {
   getCurrentSession,
@@ -65,6 +65,18 @@ export default function AuthProvider({ children }) {
     };
   }, [userId]);
 
+  // Vuelve a consultar el rol (por ejemplo, justo después de que aprueban una tienda)
+  const refreshRole = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      const role = await getCurrentUserRole();
+      setRoleState({ userId, role });
+    } catch (error) {
+      console.error("Error actualizando el rol:", error);
+    }
+  }, [userId]);
+
   const roleLoading = Boolean(userId) && roleState.userId !== userId;
   const role = userId && roleState.userId === userId ? roleState.role : null;
   const loading = sessionLoading || roleLoading;
@@ -74,12 +86,13 @@ export default function AuthProvider({ children }) {
       session,
       user: session?.user ?? null,
       role,
+      refreshRole,
       isAuthenticated: Boolean(session),
       loading,
       login: loginUser,
       logout: logoutUser,
     }),
-    [session, role, loading]
+    [session, role, refreshRole, loading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

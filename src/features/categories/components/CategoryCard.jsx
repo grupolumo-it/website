@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { getCategoryIcon } from "@/features/categories/categoryIcons";
+import { getCategoryIconClass } from "@/features/categories/categoryIcons";
 import { getCategoryTheme } from "@/features/categories/categoryThemes";
 
 export default function CategoryCard({ category }) {
   const theme = getCategoryTheme(category.color);
-  const Icon = getCategoryIcon(category.icon);
+  const iconClass = getCategoryIconClass(category.icon);
 
   return (
     <Link
-      to={`/categories/${category.slug}`}
+      to={`/catalog?categoria=${encodeURIComponent(category.slug)}`}
       className="flex flex-col items-center group cursor-pointer"
     >
 
@@ -21,10 +21,10 @@ export default function CategoryCard({ category }) {
           ${theme.bg} ${theme.border}
         `}
       >
-        <Icon
-          size={28}
+        <i
+          aria-hidden="true"
           className={`
-            text-lumo-navy transition-all duration-300
+            ${iconClass} text-2xl text-lumo-navy transition-all duration-300
             group-hover:scale-110 ${theme.icon}
           `}
         />

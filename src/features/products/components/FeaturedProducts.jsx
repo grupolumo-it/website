@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ProductGrid from "@/features/products/components/ProductGrid.jsx";
 import { useFeaturedProducts } from "@/features/products/hooks/useFeaturedProducts";
 
@@ -6,24 +7,28 @@ export default function FeaturedProducts() {
 
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto py-0">
-        <p>Cargando productos...</p>
+      <section className="max-w-6xl mx-auto px-4 pb-16">
+        <p className="text-center text-lumo-gray-500">Cargando productos...</p>
       </section>
     );
   }
 
   return (
-    <section className="max-w-6xl mx-auto py-0">
+    <section aria-label="Productos destacados" className="max-w-6xl mx-auto px-4 pb-20">
 
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-lumo-navy">
-          Productos Destacados
-        </h2>
-      </div>
-
-      {error && <p className="text-red-500 mb-6">{error}</p>}
+      {error && <p className="text-red-500 mb-6 text-center">{error}</p>}
 
       <ProductGrid products={products} />
+
+      <div className="mt-12 text-center">
+        <Link
+          to="/catalog"
+          className="inline-flex items-center gap-3 px-8 py-3 rounded-full border border-lumo-navy text-lumo-navy font-semibold hover:bg-lumo-navy hover:text-white transition"
+        >
+          Explorar nuestro catálogo completo
+          <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
+        </Link>
+      </div>
 
     </section>
   );

@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getMySeller } from "@/features/seller/sellerService";
 
-/** Tienda del usuario con sesión: { seller, loading, error }. */
+/** Tienda del usuario con sesión: { seller, loading, error, reload }. */
 export function useMySeller() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
 
-  const [result, setResult] = useState({ userId: null, seller: null, error: null });
+  const [version, setVersion] = useState(0);
+  const key = `${userId}:${version}`;
+
+  const [result, setResult] = useState({ key: null, seller: null, error: null });
 
   useEffect(() => {
     if (!userId) return;
@@ -16,25 +19,28 @@ export function useMySeller() {
 
     getMySeller(userId)
       .then((seller) => {
-        if (!cancelled) setResult({ userId, seller, error: null });
+        if (!cancelled) setResult({ key, seller, error: null });
       })
       .catch((error) => {
         console.error("Error obteniendo la tienda:", error);
         if (!cancelled) {
-          setResult({ userId, seller: null, error: "No fue posible cargar tu tienda." });
+          setResult({ key, seller: null, error: "No fue posible cargar tu tienda." });
         }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, key]);
 
-  const loading = Boolean(userId) && result.userId !== userId;
+  const reload = useCallback(() => setVersion((current) => current + 1), []);
+
+  const loading = Boolean(userId) && result.key !== key;
 
   return {
     seller: loading ? null : result.seller,
     error: loading ? null : result.error,
     loading,
+    reload,
   };
 }

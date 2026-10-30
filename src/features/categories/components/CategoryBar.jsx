@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 
 const LINK_BASE =
@@ -6,6 +6,11 @@ const LINK_BASE =
 
 export default function CategoryBar() {
   const { categories } = useCategories();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // La categoría activa es la que está filtrando el catálogo
+  const activeSlug = pathname === "/catalog" ? searchParams.get("categoria") : null;
 
   return (
     <div className="bg-white/80 backdrop-blur-md border-b border-lumo-gray-100 sticky top-[80px] z-40">
@@ -18,19 +23,17 @@ export default function CategoryBar() {
 
           <nav className="flex space-x-6">
             {categories.map((category) => (
-              <NavLink
+              <Link
                 key={category.id}
-                to={`/categories/${category.slug}`}
-                className={({ isActive }) =>
-                  `${LINK_BASE} ${
-                    isActive
-                      ? "text-lumo-navy border-lumo-navy"
-                      : "text-lumo-gray-500 border-transparent hover:text-lumo-navy hover:border-lumo-navy"
-                  }`
-                }
+                to={`/catalog?categoria=${encodeURIComponent(category.slug)}`}
+                className={`${LINK_BASE} ${
+                  activeSlug === category.slug
+                    ? "text-lumo-navy border-lumo-navy"
+                    : "text-lumo-gray-500 border-transparent hover:text-lumo-navy hover:border-lumo-navy"
+                }`}
               >
                 {category.name}
-              </NavLink>
+              </Link>
             ))}
           </nav>
 

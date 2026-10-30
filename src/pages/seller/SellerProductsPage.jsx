@@ -113,7 +113,7 @@ export default function SellerProductsPage() {
 
         <Link
           to="/seller/products/new"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-navy-light text-white text-sm font-semibold transition"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-lumo-navy hover:bg-lumo-blue text-white text-sm font-semibold transition"
         >
           <Plus size={18} />
           Nuevo producto

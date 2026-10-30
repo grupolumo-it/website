@@ -7,8 +7,9 @@ const BASE =
  * Tarjeta de acceso de las páginas de Resumen de los paneles.
  * - to: ruta a la que lleva
  * - comingSoon: sección aún no construida (se ve apagada y no se puede abrir)
+ * - badge: texto breve destacado arriba a la derecha (ej. "3 pendientes")
  */
-export default function DashboardCard({ to, icon: Icon, title, description, comingSoon = false }) {
+export default function DashboardCard({ to, icon: Icon, title, description, badge, comingSoon = false }) {
   const content = (
     <>
       <div className="flex items-start justify-between">
@@ -17,6 +18,12 @@ export default function DashboardCard({ to, icon: Icon, title, description, comi
         {comingSoon && (
           <span className="text-xs font-semibold text-lumo-gray-500 bg-lumo-gray-100 px-3 py-1 rounded-full">
             Próximamente
+          </span>
+        )}
+
+        {!comingSoon && badge && (
+          <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+            {badge}
           </span>
         )}
       </div>
